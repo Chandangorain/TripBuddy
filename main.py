@@ -135,3 +135,39 @@ graph.add_edge("flight_agent", "hotel_agent")
 graph.add_edge("hotel_agent", "itinerary_agent")
 graph.add_edge("itinerary_agent", "final_agent")
 graph.add_edge("final_agent", END)
+
+# Persistent connection so both CLI and Streamlit can share the compiled app
+_conn = psycopg.connect(DATABASE_URL)
+checkpointer = PostgresSaver(_conn)
+checkpointer.setup()
+
+app = graph.compile(checkpointer=checkpointer)
+
+
+if __name__ == "__main__":
+    config = {
+        "configurable": {
+            "thread_id": "user_aarohi"
+        }
+    }
+
+    user_input = input("Enter travel request: ")
+
+    result = app.invoke(
+        {
+            "messages": [
+                HumanMessage(content=user_input)
+            ],
+            "user_query": user_input,
+            "flight_results": "",
+            "hotel_results": "",
+            "itinerary": "",
+            "llm_calls": 0
+        },
+        config=config
+    )
+
+    print("\nFINAL RESPONSE:\n")
+
+    for msg in result["messages"]:
+        print(msg.content)
