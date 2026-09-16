@@ -33,7 +33,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 # LLM
 llm = ChatGroq(
-    model="llama-3.3-70b-versatile"
+     model="openai/gpt-oss-120b",
 )
 # State
 class TravelState(TypedDict):
@@ -55,7 +55,7 @@ def flight_agent(state: TravelState):
         ],
         "llm_calls": state.get("llm_calls", 0) + 1
     }
-
+ 
 # Hotel Agent
 def hotel_agent(state: TravelState):
     query = f"Best hotels for {state['user_query']}"
@@ -137,8 +137,14 @@ graph.add_edge("itinerary_agent", "final_agent")
 graph.add_edge("final_agent", END)
 
 # Persistent connection so both CLI and Streamlit can share the compiled app
-_conn = psycopg.connect(DATABASE_URL)
+# Persistent connection so both CLI and Streamlit can share the compiled app
+_conn = psycopg.connect(
+    DATABASE_URL,
+    autocommit=True
+)
+
 checkpointer = PostgresSaver(_conn)
+
 checkpointer.setup()
 
 app = graph.compile(checkpointer=checkpointer)
