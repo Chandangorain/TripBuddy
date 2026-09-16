@@ -4,25 +4,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
-# https://www.tavily.com/ 
-# Signup and login, On dashboard- > under api keys you will see the default key.
-# Use that or click on + to create new one. Then save it in .env file
-
 client = TavilyClient(
     api_key=os.getenv("TAVILY_API_KEY")
 )
-
-# test it
-#################################
-# response = client.search(
-    # query="Best hotels in Dubai"
-# )
-
-# print(response)
-
-####################################
-
 
 
 def tavily_search(query):
